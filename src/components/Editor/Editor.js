@@ -10,23 +10,34 @@ import 'highlight.js/styles/github-dark.css';
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 const Editor = () => {
-    const [className, setClassName] = useState('flex flex-col h-full w-full');
+    const [className, setClassName] = useState('flex flex-col h-full w-full bg-transparent');
     const [code, setCode] = useState('');
+    const [lineNumbers, setLineNumbers] = useState(1);
+    const displayLineNumbers = useRef();
     const codeArea = useRef();
     const codePre = useRef();
+
     useEffect(() => {
         codeArea.current.innerHTML = code.replace(new RegExp("&", "g"), "&").replace(new RegExp("<", "g"), "<");
         hljs.highlightAll();
     }, [code]);
 
+    useEffect(() => {
+        displayLineNumbers.current.innerHTML += `${lineNumbers}<br/>`;
+    },[lineNumbers,]);
+
     const sync_scroll = (element) => {
         codePre.current.scrollTop = element.scrollTop;
+        displayLineNumbers.current.scrollTop = element.scrollTop;
         codePre.current.scrollLeft = element.scrollLeft;
     }
 
     const checkTab = (element, event) => {
         let code = element.value;
-        if(event.key == "Tab") {
+        if(event.key === "Enter"){
+            setLineNumbers(lineNumbers + 1);
+        }
+        if(event.key === "Tab") {
             /* Tab key pressed */
             event.preventDefault(); // stop normal
             let before_tab = code.slice(0, element.selectionStart); // text before tab
@@ -42,21 +53,28 @@ const Editor = () => {
 
     return (
         <div className={className}>
-            <div className={'Editor grow text-white relative'}>
-                <textarea onChange={(e)=>{setCode(e.target.value); sync_scroll(e.target)}} onScroll={(e) => sync_scroll(e.target)}
-                          className={'text-transparent bg-transparent caret-red-600 w-full h-full resize-none absolute top-0 left-0 z-10 whitespace-pre-wrap m-2 p-2 pl-7 pt-7 border-0 text-xl font-mono outline-0 overflow-auto'}
-                          spellCheck={false} style={{lineHeight:"1.87rem"}} resize={false} onKeyDown={(e) => checkTab(e.target, e)}
-                >
-                    Hello World
-                </textarea>
-                <pre className={'h-full w-full absolute bg-transparent top-0 left-0 whitespace-pre-wrap m-2 p-2 border-0 text-xl mono overflow-auto'}
-                     style={{lineHeight:"1.87rem"}} ref={codePre}
-                >
-                    <code ref={codeArea} className="language-javascript" style={{lineHeight:"1.87rem"}}>
-                        console.log("Hello")
-                        {code}
-                    </code>
-                </pre>
+            <div className={'Editor grow flex text-white relative bg-transparent'}>
+                <div className={'h-full w-7 bg-transparent my-2 border-r-2 border-slate-700'}>
+                    <div ref={displayLineNumbers} className={'py-5'} style={{lineHeight:"1.87rem"}}>
+                        {/*{lineNumbers}*/}
+                    </div>
+                </div>
+                <div className={'h-full w-full relative'}>
+                    <textarea onChange={(e)=>{setCode(e.target.value); sync_scroll(e.target)}} onScroll={(e) => sync_scroll(e.target)}
+                               className={'text-transparent bg-transparent caret-red-600 w-full h-full resize-none absolute top-0 left-0 right-0 bottom-0 z-10 whitespace-pre-wrap m-0 p-7 border-0 text-xl font-mono outline-0 overflow-auto'}
+                               spellCheck={false} style={{lineHeight:"1.87rem"}} resize={false} onKeyDown={(e) => checkTab(e.target, e)}
+                    >
+
+                    </textarea>
+
+                    <pre className={'h-full w-full absolute bg-transparent top-0 left-0 bottom-0 right-0 whitespace-pre-wrap m-0 border-0 text-xl mono overflow-auto'}
+                          style={{lineHeight:"1.87rem", margin: "0 0 0 0", background:"transparent", padding:"8px 8px 8px 8px", fontFamily: "monospace", fontSize: "1.25rem"}} ref={codePre}
+                    >
+                               <code ref={codeArea} className="language-javascript" style={{lineHeight:"1.87rem", background:'transparent', margin:"0px 0px 0px 0px"}}>
+                                    {code}
+                               </code>
+                    </pre>
+                </div>
             </div>
 
             <ResizableBox width='100%' height={200} className={"bg-blue-600 w-full"}
@@ -71,3 +89,17 @@ const Editor = () => {
 
 export default Editor;
 
+// <textarea onChange={(e)=>{setCode(e.target.value); sync_scroll(e.target)}} onScroll={(e) => sync_scroll(e.target)}
+//           className={'text-transparent bg-transparent caret-red-600 w-full h-full resize-none absolute top-0 left-0 z-10 whitespace-pre-wrap m-2 p-2 pl-7 pt-7 border-0 text-xl font-mono outline-0 overflow-auto'}
+//           spellCheck={false} style={{lineHeight:"1.87rem"}} resize={false} onKeyDown={(e) => checkTab(e.target, e)}
+// >
+//                     Hello World
+//                 </textarea>
+// <pre className={'h-full w-full absolute bg-transparent top-0 left-0 whitespace-pre-wrap m-2 p-2 border-0 text-xl mono overflow-auto'}
+//      style={{lineHeight:"1.87rem"}} ref={codePre}
+// >
+//                     <code ref={codeArea} className="language-javascript" style={{lineHeight:"1.87rem"}}>
+//                         console.log("Hello")
+//                         {code}
+//                     </code>
+//                 </pre>
