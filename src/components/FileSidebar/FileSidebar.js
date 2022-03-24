@@ -4,19 +4,25 @@ import 'react-pro-sidebar/dist/css/styles.css';
 import {IoLogoAngular, IoLogoAndroid} from "react-icons/io";
 import {RiArrowLeftCircleFill} from "react-icons/ri";
 import {FcOpenedFolder} from 'react-icons/fc'
+import {VscFolder} from 'react-icons/vsc';
+import FolderOptions from "./FolderOptions";
 
 const FileSidebar = () => {
-    const [collapsed, setCollapsed] = useState(true)
+    const [collapsed, setCollapsed] = useState(false);
+    const [showOptions, setShowOptions] = useState(false);
+
     return (
         <ProSidebar className={'text-white'} collapsed={collapsed}>
             <SidebarHeader className={'inline-flex items-center justify-evenly'}>
                 {
                     collapsed ? (
-                        <FcOpenedFolder onClick={()=>setCollapsed(false)} className={'cursor-pointer text-2xl'} />
+                        <FcOpenedFolder onClick={()=>setCollapsed(true)} className={'cursor-pointer text-2xl'} />
                     ) : (
                         <>
+                            <VscFolder className={'relative cursor-pointer'} onClick={()=>setShowOptions(showOptions !== true)}/>
+                            <FolderOptions show={showOptions}/>
                             <h1> Folder Name </h1>
-                            <RiArrowLeftCircleFill onClick={() => setCollapsed(true)} className={'cursor-pointer text-2xl'} />
+                            <RiArrowLeftCircleFill onClick={() => setCollapsed(false)} className={'cursor-pointer text-2xl'} />
                         </>
                     )
                 }
