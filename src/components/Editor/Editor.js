@@ -1,13 +1,12 @@
 import {useState, useEffect, useRef} from "react";
 import { ResizableBox } from 'react-resizable';
-import ContentEditable from "react-contenteditable";
-import Prism from 'prismjs'
 import "prismjs/themes/prism-tomorrow.css";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
 
 // import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import AppTerminal from "./Terminal";
 
 const Editor = () => {
     const [className, setClassName] = useState('flex flex-col h-full w-full bg-transparent');
@@ -16,6 +15,7 @@ const Editor = () => {
     const displayLineNumbers = useRef();
     const codeArea = useRef();
     const codePre = useRef();
+    const lineNumberScroll = useRef();
 
     useEffect(() => {
         codeArea.current.innerHTML = code.replace(new RegExp("&", "g"), "&").replace(new RegExp("<", "g"), "<");
@@ -28,7 +28,7 @@ const Editor = () => {
 
     const sync_scroll = (element) => {
         codePre.current.scrollTop = element.scrollTop;
-        displayLineNumbers.current.scrollTop = element.scrollTop;
+        lineNumberScroll.current.scrollTop = element.scrollTop;
         codePre.current.scrollLeft = element.scrollLeft;
     }
 
@@ -53,9 +53,9 @@ const Editor = () => {
 
     return (
         <div className={className}>
-            <div className={'Editor grow flex text-white relative bg-transparent'}>
-                <div className={'h-full w-7 bg-transparent my-2 border-r-2 border-slate-700'}>
-                    <div ref={displayLineNumbers} className={'py-5'} style={{lineHeight:"1.87rem"}}>
+            <div className={'Editor flex h-full text-white relative bg-transparent overflow-auto'}>
+                <div ref={lineNumberScroll} className={'h-full w-7 bg-transparent my-2 border-r-2 border-slate-700 overflow-auto'}>
+                    <div ref={displayLineNumbers} className={'py-5 overflow-auto'} style={{lineHeight:"1.87rem"}}>
                         {/*{lineNumbers}*/}
                     </div>
                 </div>
@@ -77,12 +77,17 @@ const Editor = () => {
                 </div>
             </div>
 
-            <ResizableBox width='100%' height={200} className={"bg-blue-600 w-full"}
+            <ResizableBox width='100%' height={200} className={"w-full h-full flex flex-col-reverse"}
                           minConstraints={[100, 100]} maxConstraints={["100%", 300]}
-                          axis="y" resizeHandles={['n']} handle={<div className="foo w-full bg-red-500 h-2" />}
-            >
-
+                          axis="y" resizeHandles={['n']} handle={
+                              <div className="w-full bg-purple-900 font-bold text-slate-300 text-center cursor-row-resize">
+                                Terminal
+                              </div>
+                          }
+                    >
+                    <AppTerminal/>
             </ResizableBox>
+
         </div>
     )
 }
