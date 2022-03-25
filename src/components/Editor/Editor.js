@@ -3,12 +3,13 @@ import { ResizableBox } from 'react-resizable';
 import "prismjs/themes/prism-tomorrow.css";
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github-dark.css';
+import {readDir, readTextFile, writeFile} from "@tauri-apps/api/fs";
 
 // import SyntaxHighlighter from 'react-syntax-highlighter';
 import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 import AppTerminal from "./Terminal";
 
-const Editor = () => {
+const Editor = (props) => {
     const [className, setClassName] = useState('flex flex-col h-full w-full bg-transparent');
     const [code, setCode] = useState('');
     const [lineNumbers, setLineNumbers] = useState(1);
@@ -16,6 +17,13 @@ const Editor = () => {
     const codeArea = useRef();
     const codePre = useRef();
     const lineNumberScroll = useRef();
+
+    useEffect( async () => {
+        if(props.path!==''){
+            const contents = await readTextFile(props.path);
+            setCode(contents);
+        }
+    }, [props.path])
 
     useEffect(() => {
         codeArea.current.innerHTML = code.replace(new RegExp("&", "g"), "&").replace(new RegExp("<", "g"), "<");
@@ -25,6 +33,10 @@ const Editor = () => {
     useEffect(() => {
         displayLineNumbers.current.innerHTML += `${lineNumbers}<br/>`;
     },[lineNumbers,]);
+
+    const writeFileAsync = async () => {
+        await writeFile({contents:code, path: props.path});
+    }
 
     const sync_scroll = (element) => {
         codePre.current.scrollTop = element.scrollTop;
@@ -60,9 +72,10 @@ const Editor = () => {
                     </div>
                 </div>
                 <div className={'h-full w-full relative'}>
-                    <textarea onChange={(e)=>{setCode(e.target.value); sync_scroll(e.target)}} onScroll={(e) => sync_scroll(e.target)}
+                    <textarea onChange={async (e)=>{setCode(e.target.value); await writeFileAsync(); sync_scroll(e.target)}} onScroll={(e) => sync_scroll(e.target)}
                                className={'text-transparent bg-transparent caret-red-600 w-full h-full resize-none absolute top-0 left-0 right-0 bottom-0 z-10 whitespace-pre-wrap m-0 p-7 border-0 text-xl font-mono outline-0 overflow-auto'}
                                spellCheck={false} style={{lineHeight:"1.87rem"}} resize={false} onKeyDown={(e) => checkTab(e.target, e)}
+                               value={code}
                     >
 
                     </textarea>

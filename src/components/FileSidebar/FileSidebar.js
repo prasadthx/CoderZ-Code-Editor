@@ -6,13 +6,20 @@ import {RiArrowLeftCircleFill} from "react-icons/ri";
 import {FcOpenedFolder} from 'react-icons/fc'
 import {VscFolder} from 'react-icons/vsc';
 import FolderOptions from "./FolderOptions";
+import FolderTree, { testData } from 'react-folder-tree';
+import 'react-folder-tree/dist/style.css';
+import ShowFiles from "./ShowFiles";
 
-const FileSidebar = () => {
+const FileSidebar = (props) => {
     const [collapsed, setCollapsed] = useState(false);
     const [showOptions, setShowOptions] = useState(false);
+    const [contents, setContents] = useState({});
+    const [folderName, setFolderName] = useState('Open a Folder');
+    const onTreeStateChange = (state, event) => console.log(state, event);
+
 
     return (
-        <ProSidebar className={'text-white'} collapsed={collapsed}>
+        <ProSidebar className={'text-white'} collapsed={collapsed} width={350}>
             <SidebarHeader className={'inline-flex items-center justify-evenly'}>
                 {
                     collapsed ? (
@@ -20,8 +27,8 @@ const FileSidebar = () => {
                     ) : (
                         <>
                             <VscFolder className={'relative cursor-pointer'} onClick={()=>setShowOptions(showOptions !== true)}/>
-                            <FolderOptions show={showOptions}/>
-                            <h1> Folder Name </h1>
+                            <FolderOptions show={showOptions} setPath={props.setPath} setShowOptions={setShowOptions} setContents={setContents} setFolderName={setFolderName}/>
+                            <h1 className={'font-bold text-md p-3'}> {folderName} </h1>
                             <RiArrowLeftCircleFill onClick={() => setCollapsed(false)} className={'cursor-pointer text-2xl'} />
                         </>
                     )
@@ -31,13 +38,16 @@ const FileSidebar = () => {
                 {/**
                  *  You can add the content of the sidebar ex: menu, profile details, ...
                  */}
-                <Menu iconShape="square">
-                    <MenuItem icon={<IoLogoAndroid />}>Dashboard</MenuItem>
-                    <SubMenu title="Components" icon={<IoLogoAngular />}>
-                        <MenuItem>Component 1</MenuItem>
-                        <MenuItem>Component 2</MenuItem>
-                    </SubMenu>
-                </Menu>
+                {/*<Menu iconShape="square">*/}
+                {/*    <MenuItem icon={<IoLogoAndroid />}>Dashboard</MenuItem>*/}
+                {/*    <SubMenu title="Components" icon={<IoLogoAngular />}>*/}
+                {/*        <MenuItem>Component 1</MenuItem>*/}
+                {/*        <MenuItem>Component 2</MenuItem>*/}
+                {/*    </SubMenu>*/}
+                {/*</Menu>*/}
+
+                <ShowFiles data={contents}/>
+
             </SidebarContent>
             <SidebarFooter>
                 {/**
